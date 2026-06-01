@@ -99,7 +99,7 @@ Interaction, SW Starlab) and partly supported by the Institute of
 Information & Communications Technology Planning & Evaluation(IITP) grant funded by the Korea government(MSIT) (No.RS2025-02283048, Developing the Next-Generation General AI with
 Reliability, Ethics, and Adaptability)
 
-If you're using VTimeLLM in your research or applications, please cite using this BibTeX:
+If you use B4DL in your research, please cite:
 ```bibtex
 @inproceedings{choi2025b4dl,
   title={B4DL: A Benchmark for 4D LiDAR LLM in Spatio-Temporal Understanding},

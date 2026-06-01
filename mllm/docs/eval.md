@@ -1,32 +1,28 @@
-# VTimeLLM-Vicuna Evaluation 
+# Evaluation
 
-We provide evaluation code for VTimeLLM-Vicuna on dense video captioning and temporal video grounding tasks. Before proceeding, you should be able to run the inference code (refer to [offline_demo.md](offline_demo.md)). Below, we outline the evaluation process using the [ActivityNet Captions](https://cs.stanford.edu/people/ranjaykrishna/densevid/) dataset as an example.
+Evaluate a trained B4DL model on the B4DL test sets. Each test file is a JSON of
+test samples with pre-extracted LiDAR features; the model's answers are written to
+a log file and then scored. Make sure you can run inference first (see
+[offline_demo.md](offline_demo.md)).
 
-- Download the annotation JSON file for the dataset. For the ActivityNet Captions dataset, the test set annotation file is `val_2.json`. For other datasets, you need to preprocess them to match the JSON format of this dataset.
-- Download the raw videos of the dataset and store them in a specific folder.
-- (Optional) Pre-extract video features (refer to inference.py) and store them in a specific folder. (For the ActivityNet Captions dataset, we have extracted features for approximately 80% of the test set videos, placed in the [feat folder of the stage3 training](https://cloud.tsinghua.edu.cn/d/6db5d02883124826aa6f/?p=%2Ffeat&mode=list). You can use them for incomplete testing.)
-- Run the evaluation code, and record the model's responses in a log file. (Specify at least one of `feat_folder` and `video_folder`) :
+- Use the B4DL test splits (one file per task) from the
+  [B4DL dataset](https://huggingface.co/datasets/ccho4702/nuScenes-B4DL) as `--data_path`.
+- Provide the pre-extracted LiDAR features via `--feat_folder` (one `.npy` per id).
+
+Run inference and log the responses:
 
 ```bash
 python vtimellm/eval/eval.py \
-     --data_path /path/to/val_2.json \
-     --feat_folder /path/to/feat \
-     --video_folder /path/to/video \
+     --data_path /path/to/test/<task>.json \
+     --feat_folder /path/to/features \
      --log_path /path/to/log \
-     --model_base <path to the Vicuna v1.5 weights> 
+     --model_base /path/to/vicuna-7b-v1.5
 ```
 
-* In order to compute metrics for the dense video captioning task, you need to install `pycocoevalcap` and `Java`. 
-
-```bash
-pip install pycocoevalcap
-conda install conda-forge::openjdk
-```
-
-* Parse the log file and obtain the corresponding metrics.
+Then compute the metrics from the log (captioning metrics need `pycocoevalcap` and Java):
 
 ```bash
 python vtimellm/eval/metric.py \
-     --data_path /path/to/val_2.json \
+     --data_path /path/to/test/<task>.json \
      --log_path /path/to/log
 ```
