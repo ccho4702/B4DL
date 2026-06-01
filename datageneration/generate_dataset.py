@@ -15,7 +15,7 @@ class GenerateDataset:
         self.start = cfg.START_INDEX
         self.end = cfg.END_INDEX
         self.dataroot = cfg.DATAROOT
-        self.save_path = os.path.join(self.dataroot, "generated_dataset", self.task)
+        self.save_path = os.path.join(cfg.GENERATED_DATASET_DIR, self.task)
         self.scene_metadata_path = cfg.SCENE_METADATA_PATH
         self.prompts = Prompts(cfg)
         

@@ -1,9 +1,9 @@
 import os
-from openai import OpenAI
-import json
-import argparse
-from tqdm import tqdm
 import sys
+import argparse
+
+from openai import OpenAI
+from tqdm import tqdm
 
 import utils
 from prompts import Prompts

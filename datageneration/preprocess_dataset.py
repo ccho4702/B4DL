@@ -4,16 +4,19 @@ import argparse
 import utils
 from config import Config
 
-MODALITY_TOKEN = "<4DLiDAR>"
+# Modality placeholder expected by the MLLM trainer (mllm DEFAULT_IMAGE_TOKEN);
+# the LiDAR features for each scene are injected in place of this token.
+MODALITY_TOKEN = "<video>"
 
 
 class PreprocessDataset:
     """Convert the merged dataset into the conversation format used for training.
 
-    Each generated sample stores a single question/answer pair together with
-    its scene/sequence identifiers. Training expects records of the form
-    ``{"id": ..., "conversations": [{"from": "human", ...}, {"from": "gpt", ...}]}``
-    where the modality token is prepended to the human turn.
+    Each generated sample holds a single question/answer pair with its
+    scene/sequence identifiers. Training expects records of the form
+    ``{"id", "scene_id", "conversations": [{"from": "human", ...}, {"from": "gpt", ...}]}``,
+    where ``scene_id`` is used to load the scene features and the modality token
+    is prepended to the human turn.
     """
 
     def __init__(self, cfg: Config):
@@ -25,6 +28,7 @@ class PreprocessDataset:
         question, answer = sample["conversations"][0], sample["conversations"][1]
         return {
             "id": sample["sequence_id"],
+            "scene_id": sample["scene_id"],
             "conversations": [
                 {"from": "human", "value": f"{MODALITY_TOKEN}\n{question['value']}"},
                 {"from": "gpt", "value": answer["value"]},

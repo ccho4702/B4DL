@@ -213,32 +213,6 @@ def encode_images_to_base64(images):
         encoded_images.append(base64.b64encode(buffered.getvalue()).decode("utf-8"))
     return encoded_images
 
-def get_preprocessed_data_format(id, qa_pairs):
-    new_data = []
-    for i, qa_pair in enumerate(qa_pairs):
-        if i == 0:
-            q = {
-                "from": "human",
-                "value": "<4DLiDAR>\n" + qa_pair[0],
-            }
-        else:
-            q = {
-                "from": "human",
-                "value": qa_pair[0],
-            }
-        a = {
-            "from": "gpt",
-            "value": qa_pair[1],
-        }
-        
-        new_data.append(q)
-        new_data.append(a)
-            
-    return {
-        "id": id,
-        "conversations": new_data,
-    }
-    
 def get_qa_pairs(conversations):
     conversations = re.sub(r'Q\d+:', 'Q:', conversations)
     conversations = re.sub(r'A\d+:', 'A:', conversations)
