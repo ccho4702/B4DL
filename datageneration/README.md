@@ -49,7 +49,20 @@ python3 merge_json.py --dataroot ./data         # merge per-task outputs
 python3 preprocess_dataset.py --dataroot ./data # -> {"id", "conversations"} format
 ```
 
+## Stage-1 (3D) data
+Stage-1 uses the external [LiDAR-LLM-Nu-Caption](https://huggingface.co/datasets/Senqiao/LiDAR-LLM-Nu-Caption)
+dataset (B4DL does not redistribute it). Convert it to the training format with:
+
+```bash
+python3 tools/build_stage1_from_lidarllm.py --output ./stage1_train.json
+```
+
+This downloads the dataset, converts each QA pair to the conversation format, and
+keeps only the samples whose scene is in the B4DL training split (the same 699
+scenes used by stage2/stage3 — no test leakage), using a bundled mapping table
+under `tools/assets/` (no nuScenes required). Pass `--input` to use a local copy.
+
 ## Auxiliary / reference scripts (`tools/`)
 - `tools/create_metadata.py` — metadata generator (metadata is already released; reference only).
-- `tools/generate_stage1_caption.py` — per-frame captioning for the 3D (Stage-1) data. The paper
-  uses the external LiDAR-LLM-Nu-Caption dataset for Stage-1; this is provided only as a reference.
+- `tools/generate_stage1_caption.py` — alternative per-frame captioning utility (reference only;
+  the paper's Stage-1 uses LiDAR-LLM-Nu-Caption above, not this).
