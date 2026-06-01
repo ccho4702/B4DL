@@ -1,23 +1,23 @@
-# Running VTimeLLM inference Offline
-Please follow the instructions below to run the VTimeLLM inference on your local GPU machine. 
+# Running B4DL inference offline
+Please follow the instructions below to run B4DL inference on your local GPU machine.
 
-Note: Our demo requires approximately 18 GB of GPU memory.
+Note: the demo requires approximately 18 GB of GPU memory.
 
-### Clone the VTimeLLM repository
+### Set up the repository
 
 ```shell
-conda create --name=vtimellm python=3.10
-conda activate vtimellm
+conda create --name=b4dl python=3.10
+conda activate b4dl
 
-git clone https://github.com/huangb23/VTimeLLM.git
-cd VTimeLLM
+git clone https://github.com/ccho4702/B4DL.git
+cd B4DL/mllm
 pip install -r requirements.txt
 ```
 
 ### Download weights
 
-* Download clip model and vtimellm model from the [Tsinghua Cloud](https://cloud.tsinghua.edu.cn/d/6db5d02883124826aa6f/?p=%2Fcheckpoints&mode=list) and place them into the 'checkpoints' directory.
-* Download [Vicuna v1.5](https://huggingface.co/lmsys/vicuna-7b-v1.5) or [ChatGLM3-6b](https://huggingface.co/THUDM/chatglm3-6b)  weights.
+* Place the B4DL checkpoints and the CLIP model into the 'checkpoints' directory.
+* Download the base [Vicuna v1.5](https://huggingface.co/lmsys/vicuna-7b-v1.5) weights.
 
 ### Run the inference code
 
