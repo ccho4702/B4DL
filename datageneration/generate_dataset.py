@@ -139,7 +139,7 @@ class GenerateDataset:
                 "role": "system",
                 "content": [
                     {
-                        "type":"text", "text": "You are a helpful assistant that makes simple Q&A pairs about the entire scene using the description of front and back parts of the ego vehicle.",
+                        "type":"text", "text": "You are a helpful assistant that makes simple QnA pairs about the entire scene using the description of front and back parts of the ego vehicle.",
                     },
                 ],
             },
@@ -175,7 +175,7 @@ class GenerateDataset:
                 "role": "system",
                 "content": [
                     {
-                        "type":"text", "text": "You are a helpful assistant that makes simple existence-based Q&A pairs using the description of front and back parts of the ego vehicle.",
+                        "type":"text", "text": "You are a helpful assistant that makes simple existence-based QnA pairs using the description of front and back parts of the ego vehicle.",
                     },
                 ],
             },
@@ -211,7 +211,7 @@ class GenerateDataset:
                 "role": "system",
                 "content": [
                     {
-                        "type":"text", "text": "You are a helpful assistant that makes simple binary (yes/no) Q&A pairs using the description of front and back parts of the ego vehicle.",
+                        "type":"text", "text": "You are a helpful assistant that makes simple existence-based QnA pairs using the description of front and back parts of the ego vehicle.",
                     },
                 ],
             },
