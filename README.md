@@ -9,51 +9,104 @@ Understanding".
 
 <img src="assets/main_figure.jpg">
 
+---
+## Overview
+
+B4DL is a benchmark and an MLLM for 4D LiDAR spatio-temporal understanding. The
+repo is organized into three parts:
+
+| Folder | Purpose |
+|--------|---------|
+| [`datageneration/`](datageneration/README.md) | Build the B4DL QA dataset from nuScenes (+ tools for the Stage-1 data and metadata) |
+| [`encoders/lidarclip/`](encoders/lidarclip/README.md) | Extract LiDAR features for the model |
+| [`mllm/`](mllm/README.md) | Train and run the B4DL model (Vicuna-7B based) |
+
+The model is trained in **two stages**: **Stage 1 (3D)** learns static point-cloud
+features, **Stage 2 (4D)** learns spatio-temporal reasoning. So you prepare **two
+datasets** (Stage-1 and Stage-2/4D) plus their **LiDAR features**, then train.
 
 ---
-## Data Generation Pipeline
-
-The pipeline converts raw nuScenes data into the B4DL QA dataset. Set your
-OpenAI key (`export OPENAI_API_KEY=...`) and pass your local nuScenes path via
-`--nuscenes_root` (no paths are hard-coded).
+## Installation
 
 ```bash
-cd datageneration
-bash scripts/generate_description.sh   # 4D LiDAR context extraction
-bash scripts/generate_dataset.sh       # context-to-QA, then merge + preprocess
+git clone https://github.com/ccho4702/B4DL.git
+cd B4DL
+pip install -r datageneration/requirements.txt   # data generation
+pip install -r mllm/requirements.txt             # training / inference
 ```
 
-See [`datageneration/README.md`](datageneration/README.md) for the full pipeline
-(metadata construction, per-task generation, and preprocessing into the training format).
+Download the base [Vicuna-7B v1.5](https://huggingface.co/lmsys/vicuna-7b-v1.5) weights into
+`mllm/base_model/`, and the CLIP `ViT-L/14` weights used by the encoder.
 
 ---
-## Training Script
+## Step 1 — Prepare data
 
-Before running, please download [this file](https://huggingface.co/lmsys/vicuna-7b-v1.5/tree/main) and place it under ./base_model/
+### (a) Stage-2 / 4D data — the B4DL benchmark (simple + complex tasks)
 
-The model is trained in **two** stages: a 3D LiDAR understanding stage (`s1`) and a
-4D LiDAR understanding stage (`s2`).
+**Option 1 — download** the released dataset from
+[🤗 ccho4702/nuScenes-B4DL](https://huggingface.co/datasets/ccho4702/nuScenes-B4DL):
+`train/stage2.json` (simple tasks), `train/stage3.json` (complex tasks), `test/*.json`, and `metadata/`.
 
-- **`s1` (3D)** uses `stage1_lidarllm_mm.json` (the LiDAR-LLM-Nu-Caption data).
-- **`s2` (4D)** uses the B4DL training set: the simple-task file `stage2.json` and
-  the complex-task file `stage3.json` **combined into a single file**.
+**Option 2 — regenerate** from nuScenes (needs an OpenAI key):
+```bash
+cd datageneration
+export OPENAI_API_KEY=...
+bash scripts/generate_description.sh   # 4D context extraction (set --nuscenes_root inside)
+bash scripts/generate_dataset.sh       # per-task QA -> merge -> preprocess
+# -> data/preprocessed_dataset/preprocessed_dataset.json   (4D training file, simple+complex combined)
+```
+See [`datageneration/README.md`](datageneration/README.md) for details.
 
-> **Note on naming:** `stage2.json` / `stage3.json` are the released dataset's
-> **simple / complex task splits** — they are *not* training-stage numbers. Both
-> are used together in the single 4D stage (`s2`); concatenate them and pass the
-> result to `--s2_data`.
+### (b) Stage-1 / 3D data — external LiDAR-LLM-Nu-Caption
 
-```shell
+B4DL does not redistribute it; build it from the public dataset:
+```bash
+python3 datageneration/tools/build_stage1_from_lidarllm.py --output data/stage1_train.json
+```
+This downloads [LiDAR-LLM-Nu-Caption](https://huggingface.co/datasets/Senqiao/LiDAR-LLM-Nu-Caption),
+converts it to the training format, and keeps only the samples whose scene is in the **same 699
+training scenes as Stage-2** (no test leakage), using a bundled mapping table (no nuScenes required).
+
+### (c) Extract LiDAR features
+
+```bash
+cd encoders/lidarclip
+python3 extract_pc_features.py    # writes one .npy per scene (Stage-2) / per frame (Stage-1)
+```
+See [`encoders/lidarclip/README.md`](encoders/lidarclip/README.md).
+
+---
+## Step 2 — Train
+
+```bash
+cd mllm
 bash run_stages.sh \
-     --s1_data ./b4dl_dataset/stage1_lidarllm_mm.json \
-     --s1_feat ./lidarclip/stage1_features \
-     --s2_data ./b4dl_dataset/b4dl_4d_train.json \
-     --s2_feat ./lidarclip/stage2_features \
+     --s1_data  ../data/stage1_train.json \
+     --s1_feat  ./lidarclip/stage1_features \
+     --s2_data  ../datageneration/data/preprocessed_dataset/preprocessed_dataset.json \
+     --s2_feat  ./lidarclip/stage2_features \
      --model_name_or_path ./base_model/vicuna-v1-5-7b
 ```
+- `s1` = 3D understanding stage, `s2` = 4D understanding stage.
+- The Stage-2 data is the simple-task and complex-task data **combined** into one file.
 
-(`b4dl_4d_train.json` = `stage2.json` + `stage3.json` combined.) See
-[mllm/README.md](mllm/README.md) for details.
+See [`mllm/docs/train.md`](mllm/docs/train.md) and [`mllm/docs/data.md`](mllm/docs/data.md).
+
+---
+## Step 3 — Inference / Evaluation
+
+```bash
+python3 mllm/vtimellm/inference.py --model_base ./mllm/base_model/vicuna-v1-5-7b   # demo
+python3 mllm/vtimellm/eval/eval.py --data_path <test.json> --feat_folder <features> \
+        --model_base ./mllm/base_model/vicuna-v1-5-7b --log_path <log>             # evaluation
+```
+See [`mllm/docs/`](mllm/docs/).
+
+---
+## Notes
+- File names `stage2.json` / `stage3.json` are the dataset's **simple / complex task splits**,
+  not training-stage numbers. Both feed the single 4D training stage (`s2`).
+- Stage-1 (3D) uses the **external** LiDAR-LLM-Nu-Caption dataset (build it with the script above).
 
 ---
 
