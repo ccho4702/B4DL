@@ -7,12 +7,15 @@ the nuScenes multi-view images.
 """
 
 import os
+import sys
 import argparse
 
 from tqdm import tqdm
 from PIL import Image
 from openai import OpenAI
 
+# Auxiliary script under tools/; make the parent package modules importable.
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import utils
 from config import Config
 

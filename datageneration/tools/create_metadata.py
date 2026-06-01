@@ -6,12 +6,16 @@ metadata was constructed (sequence sampling, identifiers, train/val split).
 Regenerating will produce the same schema but new random identifiers.
 """
 
+import os
+import sys
 import argparse
 
 import numpy as np
 from nuscenes.nuscenes import NuScenes
 from nuscenes.utils.splits import create_splits_scenes
 
+# Auxiliary script under tools/; make the parent package modules importable.
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import utils
 from config import Config
 

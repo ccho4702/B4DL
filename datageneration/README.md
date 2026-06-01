@@ -22,7 +22,7 @@ The metadata used in the paper is already released on
 step is only needed to regenerate it from scratch.
 
 ```bash
-python3 create_metadata.py --nuscenes_root /path/to/nuscenes
+python3 tools/create_metadata.py --nuscenes_root /path/to/nuscenes
 ```
 
 ### 2. 4D LiDAR Context Extraction — `generate_description.py`
@@ -49,7 +49,7 @@ python3 merge_json.py --dataroot ./data         # merge per-task outputs
 python3 preprocess_dataset.py --dataroot ./data # -> {"id", "conversations"} format
 ```
 
-## Auxiliary / reference scripts
-- `create_metadata.py` — metadata generator (metadata is already released; reference only).
-- `generate_stage1_caption.py` — per-frame captioning for the 3D (Stage-1) data. The paper
+## Auxiliary / reference scripts (`tools/`)
+- `tools/create_metadata.py` — metadata generator (metadata is already released; reference only).
+- `tools/generate_stage1_caption.py` — per-frame captioning for the 3D (Stage-1) data. The paper
   uses the external LiDAR-LLM-Nu-Caption dataset for Stage-1; this is provided only as a reference.
