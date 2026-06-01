@@ -12,48 +12,29 @@ Understanding".
 
 ---
 ## Data Generation Pipeline
-**You should make your own OpenAI API key before running the code.**
+
+The pipeline converts raw nuScenes data into the B4DL QA dataset. Set your
+OpenAI key (`export OPENAI_API_KEY=...`) and pass your local nuScenes path via
+`--nuscenes_root` (no paths are hard-coded).
+
 ```bash
 cd datageneration
+bash scripts/generate_description.sh   # 4D LiDAR context extraction
+bash scripts/generate_dataset.sh       # context-to-QA, then merge + preprocess
 ```
 
-## 4D LiDAR Context Extraction Step
-Please download the `nuScenes` dataset and set the `nuscenes_root` argument to the download path.
-
-Run the following commands:
-```bash
-bash scripts/generate_description.sh
-```
-or you can run the python code directly
-```bash
-python3 generate_description.py \
-    --start_index 10 \
-    --end_index 20 \
-    --api_key {your openai api key} \
-    --nuscenes_root /mnt/nfs_shared_data/dataset/cch/nuScenes \
-    --dataroot ./data
-```
-
-## Context-to-QA Transformation Step
-```bash
-bash scripts/generate_dataset.sh
-```
-
-or you can run the python code directly
-```bash
-python3 generate_dataset.py \
-    --start_index 0 \
-    --end_index 10 \
-    --api_key {your openai api key} \
-    --nuscenes_root /mnt/nfs_shared_data/dataset/cch/nuScenes \
-    --dataroot ./data \
-    --task existence
-```
+See [`datageneration/README.md`](datageneration/README.md) for the full pipeline
+(metadata construction, per-task generation, and preprocessing into the training format).
 
 ---
 ## Training Script
 
 Before running, please download [this file](https://huggingface.co/lmsys/vicuna-7b-v1.5/tree/main) and place it under ./base_model/
+
+The model is trained in two stages: a 3D LiDAR understanding stage (`s1`) and a
+4D LiDAR understanding stage (`s2`). The 4D stage uses the B4DL training set,
+which consists of the simple-task file (`stage2.json`) and the complex-task file
+(`stage3.json`) combined.
 
 ```shell
 bash run_stages.sh \

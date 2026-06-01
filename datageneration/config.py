@@ -28,19 +28,22 @@ class Config:
     END_INDEX = 1000
     SAVE_TERM = 10
 
-    NUSCENES_ROOT = "/mnt/nfs_shared_data/dataset/cch/nuScenes"
-    NUSCENES_VERSION = "v1.0-trainval" #v1.0-mini
+    NUSCENES_ROOT = "./data/nuscenes"  # override with --nuscenes_root
+    NUSCENES_VERSION = "v1.0-trainval"  # or "v1.0-mini"
 
     DATAROOT = "./data"
     
     METADATA_DIR = DATAROOT + "/metadata"
-    SEQUENCE_METADATA_PATH = METADATA_DIR + "/sequence_metadata.json"    
+    SEQUENCE_METADATA_PATH = METADATA_DIR + "/sequence_metadata.json"
     SCENE_METADATA_PATH = METADATA_DIR + "/scene_metadata.json"
-    
+
+    # Stage-1 (3D LiDAR understanding) per-frame caption data (auxiliary / reference)
+    STAGE1_FRAME_PATH = METADATA_DIR + "/stage1_frames.json"
+    STAGE1_CAPTION_PATH = METADATA_DIR + "/stage1_captions.json"
+
+    # Data-generation pipeline outputs
     GENERATED_DESCRIPTION_DIR = DATAROOT + "/generated_description"
     GENERATED_DATASET_DIR = DATAROOT + "/generated_dataset"
-
-    GENERATED_CAPTION_DIR = GENERATED_DATASET_DIR + "/caption"
-    GENERATED_QNA_DIR = GENERATED_DATASET_DIR + "/qna"
-    GENERATED_TOTAL_DIR = GENERATED_DATASET_DIR + "/total"
+    MERGED_DATASET_DIR = DATAROOT + "/merged_dataset"
+    PREPROCESSED_DATASET_DIR = DATAROOT + "/preprocessed_dataset"
 

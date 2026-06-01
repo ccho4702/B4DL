@@ -180,8 +180,19 @@ def get_json_filenames(dir_path):
 
 def sort_json_filenames(json_filenames):
     json_filenames.sort(key=lambda x: int(x.split("_")[-1].split(".")[0]))
-    
+
     return json_filenames
+
+def merge_json_files(json_paths):
+    merged_data = []
+    for json_path in json_paths:
+        data = load_json(json_path)
+        if isinstance(data, list):
+            merged_data.extend(data)
+        else:
+            merged_data.append(data)
+
+    return merged_data
 
 def generate_unique_id(n):
     numbers = random.sample(range(1000000, 9999999), n)

@@ -18,16 +18,6 @@ class Description:
         self.start_index = cfg.START_INDEX
         self.end_index = cfg.END_INDEX
         
-    def load_sequences(self):
-        with open(self.metadata_path, "r") as f:
-            datas = json.load(f)
-        data_splits = [datas[i:i+1000] for i in range(0, len(datas), 1000)]
-        
-        readJson = utils.ReadJson(self.metadata_path, self.cfg.NUSCENES_ROOT)
-        scene_tokens, sequence_ids, images, lidars, tokens, indices = readJson.readFiles(data_splits[0])
-        
-        return scene_tokens, sequence_ids, images, lidars, tokens, indices
-    
     def get_front_images(self, images):
         front_images = images["CAM_FRONT"] + images["CAM_FRONT_LEFT"] + images["CAM_FRONT_RIGHT"]
         
@@ -136,9 +126,6 @@ class Description:
             
             utils.save_json(new_data, os.path.join(self.cfg.GENERATED_DESCRIPTION_DIR, "generated_description_" + str((start+j)*self.save_term) + "_" + str((start+j+1)*self.save_term - 1) + ".json"))
             new_data = []
-            print(f"Saved {i+1} files")
-            
-            break
     
     
 def parse_args():

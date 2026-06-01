@@ -1,9 +1,7 @@
 import argparse
 from openai import OpenAI
 from tqdm import tqdm
-import re
 import os
-import json
 
 import utils
 from config import Config
@@ -31,23 +29,8 @@ class GenerateDataset:
         
         return scene_ids
     
-    def get_qa_pairs(self, conversations):
-        conversations = re.sub(r'Q\d+:', 'Q:', conversations)
-        conversations = re.sub(r'A\d+:', 'A:', conversations)
-        
-        standardized = re.findall(r'(Q:.*?A:.*?)(?=\n|$)', conversations, re.DOTALL)
-        
-        qa_pairs = []
-        for pair in standardized:
-            qa = re.findall(r'Q:(.*?)A:(.*)', pair, re.DOTALL)
-            if qa:
-                question, answer = qa[0]
-                qa_pairs.append((question.strip(), answer.strip()))
-    
-        return qa_pairs
-    
     def preprocessing(self, scene_id, scene_token, sequence_id, start_index, end_index, conversations):
-        qa_pairs = self.get_qa_pairs(conversations)
+        qa_pairs = utils.get_qa_pairs(conversations)
         
         new_data = []
         for qa_pair in qa_pairs:
@@ -156,7 +139,7 @@ class GenerateDataset:
                 "role": "system",
                 "content": [
                     {
-                        "type":"text", "text": "You are a helpful assistant that makes simple QnA pairs about the entire scene using the description of front and back parts of the ego vehicle.",
+                        "type":"text", "text": "You are a helpful assistant that makes simple Q&A pairs about the entire scene using the description of front and back parts of the ego vehicle.",
                     },
                 ],
             },
@@ -192,7 +175,7 @@ class GenerateDataset:
                 "role": "system",
                 "content": [
                     {
-                        "type":"text", "text": "You are a helpful assistant that makes simple existence-based QnA pairs using the description of front and back parts of the ego vehicle.",
+                        "type":"text", "text": "You are a helpful assistant that makes simple existence-based Q&A pairs using the description of front and back parts of the ego vehicle.",
                     },
                 ],
             },
@@ -222,13 +205,13 @@ class GenerateDataset:
         )
         
         content = self.prompts.generate_binary_dataset_prompt(front_description, back_description, gt_caption, start_index, end_index)
-            
+
         PROMPT_MESSAGES = [
             {
                 "role": "system",
                 "content": [
                     {
-                        "type":"text", "text": "You are a helpful assistant that makes simple existence-based QnA pairs using the description of front and back parts of the ego vehicle.",
+                        "type":"text", "text": "You are a helpful assistant that makes simple binary (yes/no) Q&A pairs using the description of front and back parts of the ego vehicle.",
                     },
                 ],
             },
@@ -279,7 +262,7 @@ class GenerateDataset:
                     conversations = self.generate_binary_dataset(front_description, back_description, gt_caption, frame_start_index, frame_end_index)
                 elif self.task == "description":
                     conversations = self.generate_description_dataset(front_description, back_description, gt_caption, frame_start_index, frame_end_index)
-                elif self.task == "temporal":
+                elif self.task == "temporal_understanding":
                     conversations = self.generate_temporal_understanding_dataset(front_description, back_description, gt_caption, frame_start_index, frame_end_index)
                 elif self.task == "comprehensive":
                     conversations = self.generate_comprehensive_reasoning_dataset(front_description, back_description, gt_caption, frame_start_index, frame_end_index)
@@ -294,7 +277,8 @@ class GenerateDataset:
 def parser_args():
     parser = argparse.ArgumentParser(description="Generate Dataset from Descriptions")
     parser.add_argument("--description_dir", type=str, default=Config.GENERATED_DESCRIPTION_DIR, help="Path to the directory containing generated descriptions", dest="GENERATED_DESCRIPTION_DIR")
-    parser.add_argument("--task", type=str, default=Config.TASK, help="Type of dataset to generate. Choose between 'caption', 'qna', 'temporal', 'existence', 'binary', or 'comprehensive'", dest="TASK")
+    generatable_tasks = ["existence", "binary", "description", "temporal_understanding", "comprehensive"]
+    parser.add_argument("--task", type=str, required=True, choices=generatable_tasks, help="Task to generate. One of: " + ", ".join(generatable_tasks), dest="TASK")
     parser.add_argument("--start_index", type=int, default=Config.START_INDEX, help="Start index for processing descriptions", dest="START_INDEX")
     parser.add_argument("--end_index", type=int, default=Config.END_INDEX, help="End index for processing descriptions", dest="END_INDEX")
     parser.add_argument("--dataroot", type=str, default=Config.DATAROOT, help="Path to data root", dest="DATAROOT")
