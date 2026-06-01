@@ -31,21 +31,29 @@ See [`datageneration/README.md`](datageneration/README.md) for the full pipeline
 
 Before running, please download [this file](https://huggingface.co/lmsys/vicuna-7b-v1.5/tree/main) and place it under ./base_model/
 
-The model is trained in two stages: a 3D LiDAR understanding stage (`s1`) and a
-4D LiDAR understanding stage (`s2`). The 4D stage uses the B4DL training set,
-which consists of the simple-task file (`stage2.json`) and the complex-task file
-(`stage3.json`) combined.
+The model is trained in **two** stages: a 3D LiDAR understanding stage (`s1`) and a
+4D LiDAR understanding stage (`s2`).
+
+- **`s1` (3D)** uses `stage1_lidarllm_mm.json` (the LiDAR-LLM-Nu-Caption data).
+- **`s2` (4D)** uses the B4DL training set: the simple-task file `stage2.json` and
+  the complex-task file `stage3.json` **combined into a single file**.
+
+> **Note on naming:** `stage2.json` / `stage3.json` are the released dataset's
+> **simple / complex task splits** — they are *not* training-stage numbers. Both
+> are used together in the single 4D stage (`s2`); concatenate them and pass the
+> result to `--s2_data`.
 
 ```shell
 bash run_stages.sh \
      --s1_data ./b4dl_dataset/stage1_lidarllm_mm.json \
-     --s1_feat ./b4dl/stage1_features \
-     --s2_data ./b4dl_dataset/stage2.json \
-     --s2_feat ./b4dl/stage2_features \
+     --s1_feat ./lidarclip/stage1_features \
+     --s2_data ./b4dl_dataset/b4dl_4d_train.json \
+     --s2_feat ./lidarclip/stage2_features \
      --model_name_or_path ./base_model/vicuna-v1-5-7b
 ```
 
-For training, check out here(mllm/README.md).
+(`b4dl_4d_train.json` = `stage2.json` + `stage3.json` combined.) See
+[mllm/README.md](mllm/README.md) for details.
 
 ---
 

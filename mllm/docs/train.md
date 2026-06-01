@@ -21,13 +21,15 @@ The B4DL model is trained on top of a frozen Vicuna-7B v1.5 LLM in two stages:
 bash run_stages.sh \
     --s1_data ./b4dl_dataset/stage1_lidarllm_mm.json \
     --s1_feat ./lidarclip/stage1_features \
-    --s2_data ./b4dl_dataset/stage2.json \
+    --s2_data ./b4dl_dataset/b4dl_4d_train.json \
     --s2_feat ./lidarclip/stage2_features \
     --model_name_or_path ./base_model/vicuna-v1-5-7b
 ```
 
-`--s2_data` should point to the B4DL 4D training set (the simple-task and
-complex-task files combined). You can also run each stage directly:
+`--s2_data` is the B4DL 4D training set: the released `stage2.json` (simple tasks)
+and `stage3.json` (complex tasks) concatenated into one file. Note these file
+names are task splits, not training-stage numbers. You can also run each stage
+directly:
 
 ```shell
 bash scripts/stage1.sh
