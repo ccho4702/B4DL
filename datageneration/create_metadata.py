@@ -118,11 +118,7 @@ def parse_args():
 
 def main():
     args = parse_args()
-    cfg = Config()
-    for key, value in vars(args).items():
-        if value is not None:
-            setattr(cfg, key, value)
-
+    cfg = Config.from_args(args)
     nusc = NuScenes(version=cfg.NUSCENES_VERSION, dataroot=cfg.NUSCENES_ROOT, verbose=True)
     builder = CreateMetadata(nusc, cfg)
     builder.build_sequence_metadata()

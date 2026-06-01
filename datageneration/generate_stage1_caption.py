@@ -90,11 +90,7 @@ def parse_args():
 
 def main():
     args = parse_args()
-    cfg = Config()
-    for key, value in vars(args).items():
-        if value is not None:
-            setattr(cfg, key, value)
-
+    cfg = Config.from_args(args)
     Stage1Caption(cfg).generate()
 
 

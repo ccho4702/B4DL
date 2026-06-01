@@ -32,7 +32,7 @@ class Config:
     NUSCENES_VERSION = "v1.0-trainval"  # or "v1.0-mini"
 
     DATAROOT = "./data"
-    
+
     METADATA_DIR = DATAROOT + "/metadata"
     SEQUENCE_METADATA_PATH = METADATA_DIR + "/sequence_metadata.json"
     SCENE_METADATA_PATH = METADATA_DIR + "/scene_metadata.json"
@@ -46,4 +46,26 @@ class Config:
     GENERATED_DATASET_DIR = DATAROOT + "/generated_dataset"
     MERGED_DATASET_DIR = DATAROOT + "/merged_dataset"
     PREPROCESSED_DATASET_DIR = DATAROOT + "/preprocessed_dataset"
+
+    @classmethod
+    def from_args(cls, args):
+        """Build a config from parsed CLI args, then resolve derived paths."""
+        cfg = cls()
+        for key, value in vars(args).items():
+            if value is not None:
+                setattr(cfg, key, value)
+        return cfg.resolve_paths()
+
+    def resolve_paths(self):
+        """Recompute DATAROOT-derived paths after ``DATAROOT`` is overridden."""
+        self.METADATA_DIR = self.DATAROOT + "/metadata"
+        self.SEQUENCE_METADATA_PATH = self.METADATA_DIR + "/sequence_metadata.json"
+        self.SCENE_METADATA_PATH = self.METADATA_DIR + "/scene_metadata.json"
+        self.STAGE1_FRAME_PATH = self.METADATA_DIR + "/stage1_frames.json"
+        self.STAGE1_CAPTION_PATH = self.METADATA_DIR + "/stage1_captions.json"
+        self.GENERATED_DESCRIPTION_DIR = self.DATAROOT + "/generated_description"
+        self.GENERATED_DATASET_DIR = self.DATAROOT + "/generated_dataset"
+        self.MERGED_DATASET_DIR = self.DATAROOT + "/merged_dataset"
+        self.PREPROCESSED_DATASET_DIR = self.DATAROOT + "/preprocessed_dataset"
+        return self
 

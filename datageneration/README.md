@@ -10,6 +10,7 @@ used to train the 4D LiDAR understanding stage.
 
 ```bash
 cd datageneration
+pip install -r requirements.txt
 ```
 
 ## Pipeline

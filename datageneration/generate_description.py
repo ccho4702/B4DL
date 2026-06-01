@@ -155,11 +155,7 @@ def generate_description():
         print("Start index and end index should be multiples of save term.")
         sys.exit()
         
-    cfg = Config()
-    for key, value in vars(args).items():
-        if value is not None:
-            setattr(cfg, key, value)
-            
+    cfg = Config.from_args(args)
     description = Description(cfg)
     description.generate()
 

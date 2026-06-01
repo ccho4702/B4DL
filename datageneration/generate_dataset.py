@@ -290,11 +290,7 @@ def parser_args():
 
 def generate_dataset():
     args = parser_args()
-    cfg = Config()
-    for key, value in vars(args).items():
-        if value is not None:
-            setattr(cfg, key, value)
-            
+    cfg = Config.from_args(args)
     dataset = GenerateDataset(cfg)
     
     description_filenames = utils.sort_json_filenames(utils.get_json_filenames(cfg.GENERATED_DESCRIPTION_DIR))
